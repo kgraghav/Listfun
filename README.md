@@ -28,7 +28,7 @@ The important files include: <br>
 ## Example Code <a name="examples"></a>
 
 <b>Code:</b></br>
-from listfun import listoper as lst</br>
+from listfun import Listoper as lst</br>
 a=[1,2,3]</br>
 b=[2,3,4]</br>
 x=lst.listelemwisemult(a,b)</br>
