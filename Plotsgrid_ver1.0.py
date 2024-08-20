@@ -44,6 +44,19 @@ class Plotsgrid:
             else:
                 sns.histplot(data=self.df, x=col, ax=ax,bins=bins)  # Plot the histogram on the current axis
 
+    # Loop through the axes and Box plot
+    def boxplots(self):
+        # Initialize figure 
+        self.figure_params()
+        # Create a cycler to iterate over the DataFrame columns
+        cycler = self.cycle(self.df.columns)
+        for i,ax in enumerate(self.axs):
+            if i==self.n_data_cols:
+                ax.set_visible(False)  # Hide any extra subplots if there are more subplots than columns
+                break
+            col = next(cycler)  # Get the next column name
+            sns.boxplotplot(data=self.df, x=col, ax=ax)  # Plot the boxplot on the current axis
+
     # Loop through the axes and Line plot
     def lineplots(self):
         # Initialize figure 

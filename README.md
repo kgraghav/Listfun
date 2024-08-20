@@ -14,7 +14,7 @@ The code was developed using <b>Python version 3.12.4</b><br>
 
 ## Project Motivation<a name="motivation"></a>
 
-<b>Quick grid of plot types for a dataframe to save time manually coding it up. Heavily uses the Seaborn library</b><br>
+<b>Quick grid of plot types for a dataframe to save time manually coding it up.</b><br>
 
 ## Module Help <a name="algorithm"></a>
 
@@ -36,6 +36,7 @@ Grid of histograms for each column of df</br>
 
 ## Improvements<a name="improvements"></a>
 1. Further plots can be added
+2. Customizations
 
 ## Licensing, Authors, Acknowledgements<a name="licensing"></a>
 
