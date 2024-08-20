@@ -43,6 +43,8 @@ class Plotsgrid:
                 sns.histplot(data=self.df, x=col, ax=ax)  # Plot the histogram on the current axis
             else:
                 sns.histplot(data=self.df, x=col, ax=ax,bins=bins)  # Plot the histogram on the current axis
+        plt.tight_layout()
+        plt.show()
 
     # Loop through the axes and Box plot
     def boxplots(self):
@@ -56,6 +58,8 @@ class Plotsgrid:
                 break
             col = next(cycler)  # Get the next column name
             sns.boxplotplot(data=self.df, x=col, ax=ax)  # Plot the boxplot on the current axis
+        plt.tight_layout()
+        plt.show()
 
     # Loop through the axes and Line plot
     def lineplots(self):
@@ -69,8 +73,10 @@ class Plotsgrid:
                 break
             col = next(cycler)  # Get the next column name
             sns.lineplot(data=self.df,x=self.df.index,y=col, ax=ax)  # Plot the Line on the current axis
+        plt.tight_layout()
+        plt.show()
 
-    # Loop through the axes and Scatter plot
+    # Loop through the axes and Scatter plot for each combination of columns
     def scatterplots(self):
         # Initialize figure 
         self.figure_params()
@@ -81,7 +87,5 @@ class Plotsgrid:
                 ax.set_visible(False)  # Hide any extra subplots if there are more subplots than columns
                 break
             sns.scatterplot(data=self.df, x=xval, y=yval,ax=ax,)  # Plot the Scatter on the current axis
-
-
-    plt.tight_layout()
-    plt.show()
+        plt.tight_layout()
+        plt.show()
