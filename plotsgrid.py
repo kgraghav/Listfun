@@ -1,6 +1,8 @@
 # Class to create Plots grid
 
 from itertools import product,cycle,combinations
+from scipy.stats import pearsonr
+import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 
@@ -21,9 +23,8 @@ class Plotsgrid:
         n_rows=0
         while n_rows*n_cols<n_data_cols:
             n_rows+=1
-        
         # Create the figure and axes grid
-        fig, axs = plt.subplots(nrows=n_rows, ncols=n_cols,figsize=(int(20*n_data_cols/9),12))
+        fig, axs = plt.subplots(nrows=n_rows, ncols=n_cols,figsize=(int(2*n_data_cols),int(2*n_rows)))
         
         # Flatten the axs array for easier iteration
         self.axs = axs.flatten()
@@ -33,7 +34,7 @@ class Plotsgrid:
         # Initialize figure 
         self.figure_params()
         # Create a cycler to iterate over the DataFrame columns
-        cycler = self.cycle(self.df.columns)
+        cycler = cycle(self.df.columns)
         for i,ax in enumerate(self.axs):
             if i==self.n_data_cols:
                 ax.set_visible(False)  # Hide any extra subplots if there are more subplots than columns
@@ -48,16 +49,23 @@ class Plotsgrid:
 
     # Loop through the axes and Box plot
     def boxplots(self):
+
+        # Coerce df to numeric:
+        df=self.df.apply(pd.to_numeric,errors='coerce').dropna(how='all',axis=1)
+        
         # Initialize figure 
         self.figure_params()
         # Create a cycler to iterate over the DataFrame columns
-        cycler = self.cycle(self.df.columns)
+        cycler = cycle(df.columns)
         for i,ax in enumerate(self.axs):
-            if i==self.n_data_cols:
-                ax.set_visible(False)  # Hide any extra subplots if there are more subplots than columns
-                break
-            col = next(cycler)  # Get the next column name
-            sns.boxplotplot(data=self.df, x=col, ax=ax)  # Plot the boxplot on the current axis
+            try:
+                if i==self.n_data_cols:
+                    ax.set_visible(False)  # Hide any extra subplots if there are more subplots than columns
+                    break
+                col = next(cycler)  # Get the next column name
+                sns.boxplot(data=df, y=col, ax=ax)  # Plot the boxplot on the current axis
+            except Exception as E:
+                print(E)
         plt.tight_layout()
         plt.show()
 
@@ -66,7 +74,7 @@ class Plotsgrid:
         # Initialize figure 
         self.figure_params()
         # Create a cycler to iterate over the DataFrame columns
-        cycler = self.cycle(self.df.columns)
+        cycler = cycle(self.df.columns)
         for i,ax in enumerate(self.axs):
             if i==self.n_data_cols:
                 ax.set_visible(False)  # Hide any extra subplots if there are more subplots than columns
@@ -76,16 +84,51 @@ class Plotsgrid:
         plt.tight_layout()
         plt.show()
 
-    # Loop through the axes and Scatter plot for each combination of columns
     def scatterplots(self):
-        # Initialize figure 
-        self.figure_params()
-        # Create a cycler to iterate over the DataFrame columns
-        col_combs=list(self.combinations(self.df.columns,r=2))
-        for i, (ax, (xval, yval)) in enumerate(zip(self.axs, col_combs)):
-            if i==self.n_data_cols:
-                ax.set_visible(False)  # Hide any extra subplots if there are more subplots than columns
-                break
-            sns.scatterplot(data=self.df, x=xval, y=yval,ax=ax,)  # Plot the Scatter on the current axis
+
+        # Coerce df to numeric:
+        df=self.df.apply(pd.to_numeric,errors='coerce').dropna(how='all',axis=1)
+        
+        # Get all numeric combinations
+        col_combinations = list(combinations(df.columns, 2))
+        num_combs = len(col_combinations)
+        
+        # Calculate grid size based on the number of combinations
+        n_cols = int(np.ceil(np.sqrt(num_combs)))
+        n_rows = int(np.ceil(num_combs / n_cols))
+
+        # Create the figure and axes grid
+        fig, axs = plt.subplots(nrows=n_rows, ncols=n_cols, figsize=(int(2*n_cols),int(2*n_rows)))
+        plt.suptitle('Pairwise Scatter with higher correlations shown brighter')
+        axs = axs.flatten()  # Flatten the axes array for easier iteration
+
+        # Iterate through each combination and plot scatterplots
+        for i, (col_x, col_y) in enumerate(col_combinations):
+            ax = axs[i]
+
+            df_x_y=df[[col_x,col_y]].dropna()
+
+            x = df_x_y[col_x]
+            y = df_x_y[col_y]
+
+            # Calculate Pearson correlation and p-value
+            if len(x) > 1 and len(y) > 1:  # Ensure there are enough data points
+                corr, p_value = pearsonr(x, y)
+                corr_array=np.array([corr]*x.shape[0])
+                # Scatter plot with colored points
+                sns.scatterplot(x=x, y=y, ax=ax,hue=corr_array, palette='coolwarm',hue_norm=(-1,1),legend=False)
+
+                # Add correlation coefficient and p-value as the legend
+                ax.text(0.05, 0.95, f"r = {corr:.2f}\np = {p_value:.2e}", 
+                        transform=ax.transAxes, fontsize=7, verticalalignment='top',
+                        bbox=dict(boxstyle="round,pad=0.3", facecolor="lightgray", edgecolor="black"))
+                
+                # Set plot labels
+                ax.set_xlabel(col_x)
+                ax.set_ylabel(col_y)
+
+        # Hide any extra subplots
+        for j in range(i + 1, len(axs)):
+            axs[j].set_visible(False)
         plt.tight_layout()
         plt.show()

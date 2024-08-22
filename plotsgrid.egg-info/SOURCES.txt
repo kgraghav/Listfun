@@ -1,0 +1,5 @@
+plotsgrid.egg-info/PKG-INFO
+plotsgrid.egg-info/SOURCES.txt
+plotsgrid.egg-info/dependency_links.txt
+plotsgrid.egg-info/requires.txt
+plotsgrid.egg-info/top_level.txt
